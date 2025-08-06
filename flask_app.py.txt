@@ -1,0 +1,23 @@
+﻿import os
+from flask import Flask, request, render_template
+import telegram
+
+TOKEN = os.environ.get('TELEGRAM_TOKEN')
+GAME_SHORT_NAME = os.environ.get('GAME_SHORT_NAME')
+APP_URL = os.environ.get('RENDER_APP_URL')
+
+bot = telegram.Bot(token=TOKEN)
+app = Flask(__name__)
+
+@app.route('/{}'.format(TOKEN), methods=['POST'])
+def respond():
+    # ... (الكود الكامل الذي صممناه سابقًا)
+    return 'ok'
+
+@app.route('/game')
+def game_page():
+    return render_template('game.html')
+
+@app.route('/')
+def index():
+    return 'Web App is running!'
