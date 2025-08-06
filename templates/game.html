@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>بار علاء الدين السحري</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        :root {
+            --bg-color: #1a1a2e;
+            --primary-color: #16213e;
+            --secondary-color: #0f3460;
+            --accent-color: #e94560;
+            --text-color: #ffffff;
+            --glow-color: #fca311;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .stats-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .stat { text-align: center; }
+        .stat span { display: block; font-size: 1.5rem; font-weight: bold; }
+        .page { display: none; width: 100%; }
+        .page.active { display: block; }
+        .clicker-zone { text-align: center; }
+        .clicker-zone img { 
+            width: 250px; 
+            cursor: pointer; 
+            transition: transform 0.08s ease; 
+        }
+        .clicker-zone img:active { transform: scale(0.9); }
+        .nav-bar {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background-color: var(--secondary-color);
+            padding: 10px 0;
+            border-top: 2px solid var(--accent-color);
+        }
+        .nav-button {
+            flex-grow: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            color: #ccc;
+        }
+        .nav-button.active { color: var(--text-color); font-weight: bold; border-bottom: 3px solid var(--glow-color); }
+        .upgrade-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .upgrade-item { display: flex; align-items: center; background-color: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; border: 1px solid var(--secondary-color); }
+        .upgrade-item .info { flex-grow: 1; }
+        .upgrade-item .info h4 { margin: 0 0 5px 0; }
+        .upgrade-item .info p { margin: 0; font-size: 0.8rem; color: #ccc; }
+        .buy-button { padding: 10px 15px; background-color: var(--accent-color); border: none; color: white; border-radius: 5px; cursor: pointer; font-family: 'Tajawal', sans-serif; }
+    </style>
+</head>
+<body>
+    <div class="stats-bar">
+        <div class="stat">قطرات سحرية <span id="magic-drops">0</span></div>
+        <div class="stat">شهرة/ساعة <span id="fame-rate">0</span></div>
+    </div>
+    <div class="main-container">
+        <div id="page-main" class="page active">
+            <div class="clicker-zone">
+                <img id="drink-image" src="https://i.ibb.co/3syrjZJ/1.gif" alt="Magic Drink">
+            </div>
+        </div>
+        <div id="page-upgrades" class="page">
+            <h3>الترقيات</h3>
+            <div id="upgrade-list-container" class="upgrade-list"></div>
+        </div>
+    </div>
+    <div class="nav-bar">
+        <div class="nav-button active" onclick="showPage('main')">الجرعة الرئيسية</div>
+        <div class="nav-button" onclick="showPage('upgrades')">الترقيات</div>
+        <div class="nav-button" onclick="showPage('boosts')">التعزيزات</div>
+        <div class="nav-button" onclick="showPage('friends')">الأصدقاء</div>
+    </div>
+    <script>
+        let gameState={magicDrops:0,fameRate:0,};
+        let upgrades={'shaker':{name:'شيكر ذهبي',level:0,cost:10,effect:1,type:'per_click'},'ice':{name:'آلة ثلج مسحورة',level:0,cost:50,effect:1,type:'per_hour'},'stardust':{name:'غبار النجوم',level:0,cost:200,effect:5,type:'per_click'},'mermaid_tears':{name:'دموع حورية البحر',level:0,cost:1000,effect:10,type:'per_hour'}};
+        const magicDropsEl=document.getElementById('magic-drops');const fameRateEl=document.getElementById('fame-rate');const drinkImage=document.getElementById('drink-image');const pages=document.querySelectorAll('.page');const navButtons=document.querySelectorAll('.nav-button');const upgradeListContainer=document.getElementById('upgrade-list-container');
+        function updateStats(){magicDropsEl.innerText=Math.floor(gameState.magicDrops);fameRateEl.innerText=gameState.fameRate;}
+        function getPerClickValue(){let perClick=1;for(const key in upgrades){if(upgrades[key].type==='per_click'){perClick+=upgrades[key].level*upgrades[key].effect;}} return perClick;}
+        function calculateFameRate(){let rate=0;for(const key in upgrades){if(upgrades[key].type==='per_hour'){rate+=upgrades[key].level*upgrades[key].effect;}} gameState.fameRate=rate;}
+        drinkImage.addEventListener('click',()=>{gameState.magicDrops+=getPerClickValue();updateStats();});
+        function showPage(pageId){pages.forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(`page-${pageId}`);if(targetPage)targetPage.classList.add('active');navButtons.forEach(b=>b.classList.remove('active'));const activeButton=Array.from(navButtons).find(b=>b.getAttribute('onclick')===`showPage('${pageId}')`);if(activeButton)activeButton.classList.add('active');if(pageId==='upgrades')renderUpgrades();}
+        function renderUpgrades(){upgradeListContainer.innerHTML='';for(const key in upgrades){const item=upgrades[key];const itemEl=document.createElement('div');itemEl.className='upgrade-item';itemEl.innerHTML=`<div class="info"><h4>${item.name} (مستوى ${item.level})</h4><p>التكلفة: ${item.cost} | التأثير: +${item.effect} ${item.type==='per_click'?'قطرة/نقرة':'شهرة/ساعة'}</p></div><button class="buy-button" onclick="buyUpgrade('${key}')">شراء</button>`;upgradeListContainer.appendChild(itemEl);}}
+        function buyUpgrade(key){const item=upgrades[key];if(gameState.magicDrops>=item.cost){gameState.magicDrops-=item.cost;item.level++;item.cost=Math.floor(item.cost*1.5);calculateFameRate();updateStats();renderUpgrades();}else{alert('ليس لديك قطرات كافية!');}}
+        function passiveIncome(){gameState.magicDrops+=gameState.fameRate/3600;updateStats();}
+        calculateFameRate();updateStats();setInterval(passiveIncome,1000);showPage('main');
+    </script>
+</body>
+      </html>
